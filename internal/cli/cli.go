@@ -32,6 +32,8 @@ func Run() {
 		// runGet(store)
 	case "delete":
 		// runDelete(store)
+	case "done":
+		runDone(store)
 	default:
 		fmt.Fprintf(os.Stderr, "unknown command: %s\n", os.Args[1])
 		printUsage()
@@ -101,11 +103,26 @@ func runList(store *task.Store) {
     }
 }
 
+func runDone(store *task.Store) {
+    cmd := flag.NewFlagSet("done", flag.ExitOnError)
+    id := cmd.Int("id", 0, "task ID to mark complete")
+    cmd.Parse(os.Args[2:])
+
+    t, err := store.GetByID(*id)
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "error: %v\n", err)
+        os.Exit(1)
+    }
+    t.Complete()
+    fmt.Printf("✓ Task #%d marked as done\n", t.ID)
+}
+
 func printUsage() {
 	println("Usage: task [command]")
 	println("Commands:")
 	println("  add     - Add a new task")
 	println("  list    - List all tasks")
+	println("  done    - Mark a task as done by ID")
 	println("  get     - Get a task by ID")
 	println("  delete  - Delete a task by ID")
 }
