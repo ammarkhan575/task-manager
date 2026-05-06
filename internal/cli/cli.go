@@ -27,7 +27,7 @@ func Run() {
 	case "add":
 		runAdd(store)
 	case "list":
-		// runList(store)
+		runList(store)
 	case "get":
 		// runGet(store)
 	case "delete":
@@ -80,6 +80,25 @@ func parsePriority(s string) task.Priority {
 	default:
 		return task.PriorityLow
 	}
+}
+
+func runList(store *task.Store) {
+    cmd := flag.NewFlagSet("list", flag.ExitOnError)
+    statusFilter := cmd.String("status", "", "filter by status: todo|in_progress|done")
+    cmd.Parse(os.Args[2:])
+
+    tasks := store.GetAll()
+    if len(tasks) == 0 {
+        fmt.Println("No tasks found.")
+        return
+    }
+
+    for _, t := range tasks {
+        if *statusFilter != "" && string(t.Status) != *statusFilter {
+            continue
+        }
+        fmt.Println(t) // calls t.String() via Stringer interface
+    }
 }
 
 func printUsage() {
