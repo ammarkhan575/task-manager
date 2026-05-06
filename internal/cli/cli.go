@@ -1,0 +1,92 @@
+package cli
+
+import (
+	"flag"
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/ammarkhan575/task-manager/internal/task"
+)
+
+const dataFile = "tasks.json"
+
+func Run() {
+	if len(os.Args) < 2 {
+		printUsage()
+		os.Exit(1)
+	}
+
+	store := task.NewStore()
+	if err := store.Load(dataFile); err != nil {
+		fmt.Fprintf(os.Stderr, "error loading tasks: %v\n", err)
+		os.Exit(1)
+	}
+
+	switch os.Args[1] {
+	case "add":
+		runAdd(store)
+	case "list":
+		// runList(store)
+	case "get":
+		// runGet(store)
+	case "delete":
+		// runDelete(store)
+	default:
+		fmt.Fprintf(os.Stderr, "unknown command: %s\n", os.Args[1])
+		printUsage()
+		os.Exit(1)
+	}
+
+	// Save after every mutating command
+	if err := store.Save(dataFile); err != nil {
+		fmt.Fprintf(os.Stderr, "error saving tasks: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func runAdd(store *task.Store) {
+	// Each subcommand gets its own FlagSet - isolated flags
+	cmd := flag.NewFlagSet("add", flag.ExitOnError)
+	title := cmd.String("title", "", "Title of the task (required)")
+	description := cmd.String("desc", "", "Description of the task")
+	priority := cmd.String("priority", "low", "low|medium|high")
+	tags := cmd.String("tags", "", "Comma-separated tags")
+
+	cmd.Parse(os.Args[2:]) // parse everything after "add"
+
+	if *title == "" {
+		fmt.Fprintln(os.Stderr, "error: -title is required")
+		cmd.Usage()
+		os.Exit(1)
+	}
+
+	p := parsePriority(*priority)
+	t := task.NewTask(store.NextID(), *title, *description, p)
+	if *tags != "" {
+		t.AddTags(strings.Split(*tags, ",")...)
+	}
+	store.AddTask(t)
+	fmt.Printf("✓ Added task #%d: %s\n", t.ID, t.Title)
+
+}
+
+func parsePriority(s string) task.Priority {
+	switch s {
+	case "medium":
+		return task.PriorityMedium
+	case "high":
+		return task.PriorityHigh
+	default:
+		return task.PriorityLow
+	}
+}
+
+func printUsage() {
+	println("Usage: task [command]")
+	println("Commands:")
+	println("  add     - Add a new task")
+	println("  list    - List all tasks")
+	println("  get     - Get a task by ID")
+	println("  delete  - Delete a task by ID")
+}

@@ -36,7 +36,7 @@ type Task struct {
 	Tags        []string  `json:"tags"`
 }
 
-func NewTask(id int, title string, description string, priority Priority, dueDate time.Time, tags []string) *Task {
+func NewTask(id int, title string, description string, priority Priority) *Task {
 	return &Task{
 		ID:          id,
 		Title:       title,
