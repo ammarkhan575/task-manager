@@ -31,7 +31,7 @@ func Run() {
 	case "get":
 		// runGet(store)
 	case "delete":
-		// runDelete(store)
+		runDelete(store)
 	case "done":
 		runDone(store)
 	default:
@@ -115,6 +115,17 @@ func runDone(store *task.Store) {
     }
     t.Complete()
     fmt.Printf("✓ Task #%d marked as done\n", t.ID)
+}
+
+func runDelete(store *task.Store) {
+	cmd := flag.NewFlagSet("delete", flag.ExitOnError)
+	id := cmd.Int("id", 0, "task ID to delete")
+	cmd.Parse(os.Args[2:])
+
+	if !store.Delete(*id) {
+		fmt.Fprintf(os.Stderr, "error: task #%d not found\n", *id)
+		os.Exit(1)
+	}
 }
 
 func printUsage() {
