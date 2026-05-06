@@ -1,7 +1,9 @@
 package task
 
+import "fmt"
+
 type Store struct {
-	tasks map[int]*Task
+	tasks  map[int]*Task
 	nextID int
 }
 
@@ -9,13 +11,13 @@ type StoreInterface interface {
 	NextID() int
 	AddTask(t *Task)
 	GetAll() []*Task
-	GetByID(id int) (*Task, bool)
+	GetByID(id int) (*Task, error)
 	Delete(id int) bool
 }
 
 func NewStore() *Store {
 	return &Store{
-		tasks: make(map[int]*Task),
+		tasks:  make(map[int]*Task),
 		nextID: 1,
 	}
 }
@@ -38,9 +40,15 @@ func (s *Store) GetAll() []*Task {
 	return tasks
 }
 
-func (s *Store) GetByID(id int) (*Task, bool) {
+func (s *Store) GetByID(id int) (*Task, error) {
+	if id <= 0 {
+		return nil, &ValidationError{Field: "ID", Message: "must be a positive integer"}
+	}
 	t, ok := s.tasks[id]
-	return t, ok
+	if !ok {
+		return nil, fmt.Errorf("GetByID: %d, %w", id, ErrNotFound)
+	}
+	return t, nil
 }
 
 func (s *Store) Delete(id int) bool {

@@ -71,3 +71,7 @@ func (s Status) String() string { return string(s) }
 func (t *Task) Start() { t.Status = StatusInProgress }
 
 func (t *Task) Complete() { t.Status = StatusDone }
+
+func (t *Task) AddTags(tags ...string) {
+	t.Tags = append(t.Tags, tags...);
+}
