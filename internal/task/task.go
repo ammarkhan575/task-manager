@@ -28,3 +28,15 @@ type Task struct {
 	DueDate     time.Time
 	Tags        []string
 }
+
+func NewTask(id int, title string, description string, priority Priority, dueDate time.Time, tags []string) *Task {
+	return &Task{
+		ID: id, 
+		Title: title,
+		Description: description,
+		Priority: priority,
+		Status: StatusTodo,
+		CreatedAt: time.Now(),
+		Tags: []string{},
+	}
+}
