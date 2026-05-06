@@ -29,7 +29,7 @@ func Run() {
 	case "list":
 		runList(store)
 	case "get":
-		// runGet(store)
+		runGet(store)
 	case "delete":
 		runDelete(store)
 	case "done":
@@ -126,6 +126,19 @@ func runDelete(store *task.Store) {
 		fmt.Fprintf(os.Stderr, "error: task #%d not found\n", *id)
 		os.Exit(1)
 	}
+}
+
+func runGet(store *task.Store) {
+	cmd := flag.NewFlagSet("get", flag.ExitOnError)
+	id := cmd.Int("id", 0, "task ID to get")
+	cmd.Parse(os.Args[2:])
+	
+	t, err := store.GetByID(*id)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println(t)
 }
 
 func printUsage() {
