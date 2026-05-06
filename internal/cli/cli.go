@@ -85,36 +85,36 @@ func parsePriority(s string) task.Priority {
 }
 
 func runList(store *task.Store) {
-    cmd := flag.NewFlagSet("list", flag.ExitOnError)
-    statusFilter := cmd.String("status", "", "filter by status: todo|in_progress|done")
-    cmd.Parse(os.Args[2:])
+	cmd := flag.NewFlagSet("list", flag.ExitOnError)
+	statusFilter := cmd.String("status", "", "filter by status: todo|in_progress|done")
+	cmd.Parse(os.Args[2:])
 
-    tasks := store.GetAll()
-    if len(tasks) == 0 {
-        fmt.Println("No tasks found.")
-        return
-    }
+	tasks := store.GetAll()
+	if len(tasks) == 0 {
+		fmt.Println("No tasks found.")
+		return
+	}
 
-    for _, t := range tasks {
-        if *statusFilter != "" && string(t.Status) != *statusFilter {
-            continue
-        }
-        fmt.Println(t) // calls t.String() via Stringer interface
-    }
+	for _, t := range tasks {
+		if *statusFilter != "" && string(t.Status) != *statusFilter {
+			continue
+		}
+		fmt.Println(t) // calls t.String() via Stringer interface
+	}
 }
 
 func runDone(store *task.Store) {
-    cmd := flag.NewFlagSet("done", flag.ExitOnError)
-    id := cmd.Int("id", 0, "task ID to mark complete")
-    cmd.Parse(os.Args[2:])
+	cmd := flag.NewFlagSet("done", flag.ExitOnError)
+	id := cmd.Int("id", 0, "task ID to mark complete")
+	cmd.Parse(os.Args[2:])
 
-    t, err := store.GetByID(*id)
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "error: %v\n", err)
-        os.Exit(1)
-    }
-    t.Complete()
-    fmt.Printf("✓ Task #%d marked as done\n", t.ID)
+	t, err := store.GetByID(*id)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+	t.Complete()
+	fmt.Printf("✓ Task #%d marked as done\n", t.ID)
 }
 
 func runDelete(store *task.Store) {
@@ -142,11 +142,12 @@ func runGet(store *task.Store) {
 }
 
 func printUsage() {
-	println("Usage: task [command]")
-	println("Commands:")
-	println("  add     - Add a new task")
-	println("  list    - List all tasks")
-	println("  done    - Mark a task as done by ID")
-	println("  get     - Get a task by ID")
-	println("  delete  - Delete a task by ID")
+	fmt.Println(`Usage: task <command> [flags]
+
+Commands:
+  add    -title "..." [-priority low|medium|high] [-desc "..."] [-tags "a,b"]
+  list   [-status todo|in_progress|done]
+  done   -id <n>
+  get    -id <n>
+  delete -id <n>`)
 }
