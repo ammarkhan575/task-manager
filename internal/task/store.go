@@ -32,6 +32,20 @@ func (s *Store) AddTask(t *Task) {
 	s.nextID++
 }
 
+func (s *Store) SafeAdd(t *Task) (err error) {
+	defer func() {  // defer runs LIFO when function returns - even on panic
+		if r := recover(); r != nil {
+			err = fmt.Errorf("recovered from panic: %v", r)
+		}
+	}()
+
+	if t == nil {
+		panic("cannot add nil task") // panic for programming errors, not user errors
+	}
+	s.AddTask(t)
+	return nil
+}
+
 func (s *Store) GetAll() []*Task {
 	tasks := make([]*Task, 0, len(s.tasks))
 	for _, t := range s.tasks {
