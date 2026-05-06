@@ -21,15 +21,19 @@ const (
 	StatusDone       Status = "done"
 )
 
+// JSON struct tags control marshaling:
+// `json:"id"`           → key name in JSON
+// `json:"due,omitempty"` → omit field if zero value
+// `json:"-"`            → always skip this field
 type Task struct {
-	ID          int
-	Title       string
-	Description string
-	Priority    Priority
-	Status      Status
-	CreatedAt   time.Time
-	DueDate     time.Time
-	Tags        []string
+	ID          int       `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description,omitempty"`
+	Priority    Priority  `json:"priority"`
+	Status      Status    `json:"status"`
+	CreatedAt   time.Time `json:"created_at"`
+	DueDate     time.Time `json:"due_date,omitempty"`
+	Tags        []string  `json:"tags"`
 }
 
 func NewTask(id int, title string, description string, priority Priority, dueDate time.Time, tags []string) *Task {
@@ -73,5 +77,5 @@ func (t *Task) Start() { t.Status = StatusInProgress }
 func (t *Task) Complete() { t.Status = StatusDone }
 
 func (t *Task) AddTags(tags ...string) {
-	t.Tags = append(t.Tags, tags...);
+	t.Tags = append(t.Tags, tags...)
 }
